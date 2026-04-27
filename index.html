@@ -2,122 +2,65 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Universal Player</title>
+<title>Iframe Player</title>
 
 <style>
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
   height: 100%;
   background: #000;
+  overflow: hidden;
 }
 
-/* Shared full screen */
-.player {
+/* Fullscreen iframe */
+#iframePlayer {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   border: none;
-  background: #000;
 }
 
-/* Video */
-#videoPlayer {
-  object-fit: fill;
-}
-
-/* Logo */
-#customLogo {
+/* Optional small menu */
+#menu {
   position: fixed;
-  top: 5px;
-  right: 12px;
-  width: 18vw;
-  max-width: 85px;
-  min-width: 40px;
-  z-index: 999999;
-  pointer-events: none;
+  bottom: 10px;
+  left: 10px;
+  z-index: 9999;
 }
 
-@media (max-width: 480px) {
-  #customLogo {
-    width: 22vw;
-    top: 3px;
-    right: 8px;
-  }
+#menu button {
+  padding: 8px 10px;
+  margin: 4px;
+  border: none;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border-radius: 6px;
 }
 </style>
-
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 
 <body>
 
-<!-- Logo -->
-<img src="YOUR_LOGO_URL" id="customLogo">
+<iframe id="iframePlayer" allowfullscreen></iframe>
 
-<!-- Video -->
-<video id="videoPlayer" class="player" controls autoplay playsinline></video>
-
-<!-- Iframe -->
-<iframe id="iframePlayer" class="player" allowfullscreen style="display:none;"></iframe>
+<!-- Optional controls -->
+<div id="menu">
+  <button onclick="loadPage('https://example.com')">Page 1</button>
+  <button onclick="loadPage('https://example.org')">Page 2</button>
+</div>
 
 <script>
-function getParam(name) {
-  return new URL(window.location.href).searchParams.get(name);
-}
-
-const url = getParam("url");
-const type = getParam("type"); // optional: hls / iframe
-
-const video = document.getElementById("videoPlayer");
 const iframe = document.getElementById("iframePlayer");
 
-if (!url) {
-  alert("No URL provided!");
-} else {
-
-  // Detect type automatically if not provided
-  let mode = type;
-
-  if (!mode) {
-    if (url.includes(".m3u8")) {
-      mode = "hls";
-    } else if (url.includes("http")) {
-      mode = "iframe";
-    }
-  }
-
-  // -------- HLS MODE --------
-  if (mode === "hls") {
-    iframe.style.display = "none";
-    video.style.display = "block";
-
-    if (Hls.isSupported()) {
-      const hls = new Hls();
-      hls.loadSource(url);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      video.src = url;
-      video.addEventListener("loadedmetadata", () => video.play());
-    }
-  }
-
-  // -------- IFRAME MODE --------
-  else if (mode === "iframe") {
-    video.style.display = "none";
-    iframe.style.display = "block";
-
-    iframe.src = url;
-  }
-
-  else {
-    alert("Unsupported format!");
-  }
+function loadPage(url) {
+  iframe.src = url;
 }
+
+// Auto load default page
+loadPage("https://example.com");
 </script>
 
 </body>
